@@ -24,7 +24,7 @@ function DOMAction(handler, options) {
   this.bubble = options.bubble;
 }
 
-DOMAction.prototype.contructor = DOMAction;
+DOMAction.prototype.constructor = DOMAction;
 
 /**
  * Name of the event to trigger on the
