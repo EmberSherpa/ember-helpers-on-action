@@ -7,8 +7,10 @@ export default function(handler, options) {
   return new DOMAction(handler, options);
 }
 
-function DOMAction(handler, options) {
-  if (!(this instanceof DOMAction)) return new DOMAction(handler, options);
+export function DOMAction(handler, options) {
+  if (!(this instanceof DOMAction)) {
+    return new DOMAction(handler, options);
+  }
   if (Ember.typeOf(handler) === 'string') {
     this.eventName = handler;
   }
@@ -50,14 +52,14 @@ DOMAction.prototype.apply = function(controller, args) {
   var view = this.view;
 
   if (view && this.eventName != null && view.trigger != null) {
+    args.unshift(this.eventName);
     if (this.afterRender) {
-      args.unshift(this.eventName);
       //Ember.run.scheduleOnce('afterRender', view, view.trigger, args);
       Ember.run.scheduleOnce('afterRender', view, function() {
-        this.trigger.apply(this, args);
+        view.trigger.apply(view, args);
       });
     } else {
-      view.trigger(this.eventName, args);
+      view.trigger.apply(view, args);
     }
     if (this.bubble) {
       return true;

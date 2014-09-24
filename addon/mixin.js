@@ -1,10 +1,11 @@
 import Ember from 'ember';
+import {DOMAction} from './action';
 
 /**
  * Ember.View mixin that will cause the view to bind itself to parent's controller's DOM Actions.
  * When used on Component, the mixin will go to parentView's controller.
  */
-export default DOMActionMixin = Ember.Mixin.create({
+export default Ember.Mixin.create({
   bindDOMActions: function() {
     var view;
     if (this instanceof Ember.Component) {
@@ -33,11 +34,11 @@ export default DOMActionMixin = Ember.Mixin.create({
 export function followParent(eventName) {
   return Ember.Mixin.create({
     bindToParent: function() {
-      var args = [].slice(arguments, 0);
       var parentView = this.get('parentView');
       if (parentView) {
-        args.unshift(eventName);
         parentView.on(eventName, this, function(){
+          var args = [].slice.apply(arguments);
+          args.unshift(eventName);
           this.trigger.apply(this, args);
         });
       }

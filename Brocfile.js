@@ -17,4 +17,8 @@ var app = new EmberAddon();
 // please specify an object with the list of modules as keys
 // along with the exports of each module as its value.
 
+app.import('bower_components/topcoat/css/topcoat-desktop-light.css');
+app.import('bower_components/topcoat/font/SourceSansPro-Regular.otf');
+app.import('bower_components/topcoat/font/SourceSansPro-Semibold.otf');
+
 module.exports = app.toTree();
