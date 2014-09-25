@@ -2,6 +2,7 @@
   "name": "ember-dom-actions",
   "version": "0.1.0",
   "main": "dist/named-amd/main.js",
+  "public": false,
   "dependencies": {
     "handlebars": "~1.3.0",
     "jquery": "^1.11.1",
