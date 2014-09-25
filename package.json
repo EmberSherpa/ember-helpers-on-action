@@ -7,9 +7,9 @@
     "test": "tests"
   },
   "scripts": {
-    "start": "ember server",
-    "build": "ember build",
-    "test": "ember test"
+    "start": "./node_modules/.bin/ember server --output=built",
+    "build": "./node_modules/.bin/ember build --output=built",
+    "test": "./node_modules/.bin/ember test --output=built"
   },
   "repository": "https://github.com/taras/ember-dom-actions.git",
   "engines": {
@@ -21,6 +21,13 @@
     "body-parser": "^1.2.0",
     "broccoli-asset-rev": "0.1.1",
     "broccoli-ember-hbs-template-compiler": "^1.6.1",
+    "grunt-cli": "^0.1.13",
+    "grunt-broccoli": "^0.3.6",
+    "grunt": "^0.4.5",
+    "grunt-bump": "0.0.15",
+    "grunt-shell": "^1.1.1",
+    "broccoli-es6-concatenator": "^0.1.7",
+    "broccoli-static-compiler": "^0.1.4",
     "ember-cli": "0.0.46",
     "ember-cli-ic-ajax": "0.1.1",
     "ember-cli-inject-live-reload": "^1.0.2",
@@ -28,7 +35,9 @@
     "ember-data": "1.0.0-beta.10",
     "express": "^4.8.5",
     "glob": "^4.0.5",
-    "ember-cli-topcoat": "^0.1.2"
+    "ember-cli-topcoat": "^0.1.2",
+    "broccoli-dist-es6-module": "^0.2.1",
+    "broccoli-merge-trees": "^0.1.4"
   },
   "keywords": [
     "ember-addon"
@@ -36,6 +45,5 @@
   "ember-addon": {
     "configPath": "tests/dummy/config"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
