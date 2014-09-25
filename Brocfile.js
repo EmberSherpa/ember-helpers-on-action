@@ -20,5 +20,9 @@ var app = new EmberAddon();
 app.import('bower_components/topcoat/css/topcoat-desktop-light.css');
 app.import('bower_components/topcoat/font/SourceSansPro-Regular.otf');
 app.import('bower_components/topcoat/font/SourceSansPro-Semibold.otf');
+app.import('bower_components/tether/tether.js');
+app.import('bower_components/drop/drop.js');
+app.import('bower_components/tether-tooltip/tooltip.js');
+app.import('bower_components/tether-tooltip/css/tooltip-theme-arrows.css');
 
 module.exports = app.toTree();
