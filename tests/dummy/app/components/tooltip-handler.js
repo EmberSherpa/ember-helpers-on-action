@@ -1,10 +1,8 @@
 import Ember from 'ember';
-import followParent from 'ember-dom-actions/factories/follow-parent';
 
 export default Ember.Component.extend(
-  followParent('show-tooltip'),
-  followParent('hide-tooltip'),
   {
+    handles: ['show-tooltip', 'hide-tooltip'],
     tooltip: null,
     'show-tooltip': function(target, content, options) {
       options = Ember.merge({
@@ -19,13 +17,13 @@ export default Ember.Component.extend(
       tooltip = new Tooltip(options);
       this.set('tooltip', tooltip);
       console.log('Showing tooltip: ', target);
-    },
+    }.on('show-tooltip'),
     'hide-tooltip': function() {
       var tooltip = this.get('tooltip');
       if (tooltip) {
         tooltip.destory();
       }
       console.log('Hiding tooltip: ', target);
-    }
+    }.on('hide-tooltip')
   }
 );

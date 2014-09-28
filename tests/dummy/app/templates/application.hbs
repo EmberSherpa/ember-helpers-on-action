@@ -1,4 +1,9 @@
-{{dom-actions}}
+{{#action-dispatcher}}
+  {{on-action "show-tooltip"}}
+  {{on-action "hide-tooltip"}}
+  {{on-action 'show-me-the-finger'}}
+  {{tooltip-handler}}
+{{/action-dispatcher}}
 
 <h2 id="title">ember-dom-actions</h2>
 
@@ -13,8 +18,4 @@
   {{#tooltip-close action="hide-tooltip"}}Close{{/tooltip-close}}
 {{/tooltip-trigger}}
 
-
-
 {{outlet}}
-
-{{tooltip-handler}}

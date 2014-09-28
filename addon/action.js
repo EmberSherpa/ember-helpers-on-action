@@ -1,76 +1,55 @@
 import Ember from 'ember';
 
-/**
- * Returns a new DOMAction
- */
-export default function(handler, options) {
-  return new DOMAction(handler, options);
-}
-
-export function DOMAction(handler, options) {
-  if (!(this instanceof DOMAction)) {
-    return new DOMAction(handler, options);
-  }
-  if (Ember.typeOf(handler) === 'string') {
-    this.eventName = handler;
-  }
-  if (Ember.typeOf(handler) === 'function') {
-    this.func = handler;
-  }
-  options = Ember.merge({
-    afterRender: false,
-    bubble: false
-  }, options);
-
-  this.afterRender = options.afterRender;
-  this.bubble = options.bubble;
-}
-
-DOMAction.prototype.constructor = DOMAction;
-
-/**
- * Name of the event to trigger on the
- * @type {null}
- */
-DOMAction.prototype.eventName = null;
-/**
- * View that this action targets
- * @type {null}
- */
-DOMAction.prototype.view = null;
-/**
- * Function that will be called when action is triggered
- * @type {null}
- */
-DOMAction.prototype.func = null;
-
-DOMAction.prototype.setup = function(view) {
-  this.view = view;
-};
-
-DOMAction.prototype.apply = function(controller, args) {
-  var view = this.view;
-
-  if (view && this.eventName != null && view.trigger != null) {
-    args.unshift(this.eventName);
-    if (this.afterRender) {
-      //Ember.run.scheduleOnce('afterRender', view, view.trigger, args);
-      Ember.run.scheduleOnce('afterRender', view, function() {
-        view.trigger.apply(view, args);
-      });
-    } else {
+var DOMAction = Ember.Object.extend(Ember.Evented, {
+  /**
+   * Name of the action that is being triggered
+   */
+  actionName: null,
+  /**
+   * Original function defined on the controller
+   */
+  actionFunction: null,
+  /**
+   * Name of the event to trigger
+   */
+  eventName: null,
+  /**
+   * Object where the action is defined
+   */
+  source: null,
+  apply: function(controller) {
+    var args = [].slice(arguments, 1);
+    var eventName = this.get('eventName');
+    // trigger events that are bound to
+    this.trigger.call(this, eventName, args);
+    var func = this.get('actionFunction');
+    return func.apply(controller, args);
+  },
+  register: function(eventName, view) {
+    Ember.assert("View must be an Ember.view", view instanceof Ember.View);
+    this.on(eventName, function triggerViewAction(args){
+      // add eventName to the beginning of the args array
+      args.unshift(eventName);
+      // push domAction to the end of the args array
+      args.push(this);
       view.trigger.apply(view, args);
-    }
-    if (this.bubble) {
-      return true;
-    }
-  }
-
-  if (this.func != null) {
-    var controllerProxy = Ember.ObjectProxy.create({
-      content: controller,
-      view: view
     });
-    return this.func.apply(controllerProxy, args);
   }
-};
+});
+
+DOMAction.reopenClass({
+  convert: function(target, actionName, eventName) {
+    Ember.assert("Target must implement Ember.ActionHandlerMixin - ie. be controller.", Ember.ActionHandler.detect(target));
+    var func =  target._actions[actionName];
+    var action = DOMAction.create({
+      actionFunction: func,
+      actionName: actionName,
+      eventName: eventName,
+      source: target
+    });
+    target._actions[actionName] = action;
+    return action;
+  }
+});
+
+export default DOMAction;
