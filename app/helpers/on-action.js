@@ -17,7 +17,7 @@ function onActionHelper(actionName, options){
   Ember.assert("{{on-action}} actionName parameter is missing.", actionName != null);
 
   var context = get(options, 'hash.context') || this;
-  var view = get(options, 'data.view');
+  var view = get(options, 'data.view.parentView');
   var eventName = get(options, 'hash.trigger') || actionName;
   var actions = get(context, '_actions') || {};
   var action;
@@ -32,9 +32,20 @@ function onActionHelper(actionName, options){
     actions[actionName] = action;
   }
   var domAction = action instanceof DOMAction ? action : DOMAction.convert(context, actionName, eventName);
-  domAction.register(eventName, view);
 
-  if (DispatcherMixin.detect(view)) {
-    view.register(eventName, domAction);
+  var isViewDispatcher = DispatcherMixin.detect(view);
+  if (isViewDispatcher) {
+    /**
+     * Register action with dispatcher.
+     * When action is triggered, the dispatcher is notified and reacts by notifying
+     * all handlers that are registered with the dispatcher.
+     */
+    view.registerAction(eventName, domAction);
+  } else {
+    /**
+     * Register view with the action.
+     * When action is triggered, the event will be triggered on this view.
+     */
+    domAction.register(view);
   }
 }

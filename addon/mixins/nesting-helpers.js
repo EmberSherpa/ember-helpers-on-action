@@ -19,7 +19,7 @@ export default Ember.Mixin.create({
     var component = this.container.lookupFactory('component:%@'.fmt(componentName));
     Ember.assert('Must pass a valid component name - %@ was not found.', component);
 
-    return (this.get('_childViews') || []).find(function findChild(item, index){
+    return (this.get('_childViews') || []).find(function findChild(item){
       // TODO: write recursive mechanism
       return item instanceof component;
     });
