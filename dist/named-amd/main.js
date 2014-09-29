@@ -4,108 +4,66 @@ define("ember-dom-actions/action",
     "use strict";
     var Ember = __dependency1__["default"] || __dependency1__;
 
-    /**
-     * Returns a new DOMAction
-     */
-    __exports__["default"] = function(handler, options) {
-      return new DOMAction(handler, options);
-    }
-
-    function DOMAction(handler, options) {
-      if (!(this instanceof DOMAction)) {
-        return new DOMAction(handler, options);
-      }
-      if (Ember.typeOf(handler) === 'string') {
-        this.eventName = handler;
-      }
-      if (Ember.typeOf(handler) === 'function') {
-        this.func = handler;
-      }
-      options = Ember.merge({
-        afterRender: false,
-        bubble: false
-      }, options);
-
-      this.afterRender = options.afterRender;
-      this.bubble = options.bubble;
-    }
-
-    __exports__.DOMAction = DOMAction;DOMAction.prototype.constructor = DOMAction;
-
-    /**
-     * Name of the event to trigger on the
-     * @type {null}
-     */
-    DOMAction.prototype.eventName = null;
-    /**
-     * View that this action targets
-     * @type {null}
-     */
-    DOMAction.prototype.view = null;
-    /**
-     * Function that will be called when action is triggered
-     * @type {null}
-     */
-    DOMAction.prototype.func = null;
-
-    DOMAction.prototype.setup = function(view) {
-      this.view = view;
-    };
-
-    DOMAction.prototype.apply = function(controller, args) {
-      var view = this.view;
-
-      if (view && this.eventName != null && view.trigger != null) {
-        args.unshift(this.eventName);
-        if (this.afterRender) {
-          //Ember.run.scheduleOnce('afterRender', view, view.trigger, args);
-          Ember.run.scheduleOnce('afterRender', view, function() {
-            view.trigger.apply(view, args);
-          });
-        } else {
-          view.trigger.apply(view, args);
-        }
-        if (this.bubble) {
-          return true;
-        }
-      }
-
-      if (this.func != null) {
-        var controllerProxy = Ember.ObjectProxy.create({
-          content: controller,
-          view: view
+    var DOMAction = Ember.Object.extend(Ember.Evented, {
+      /**
+       * Name of the action that is being triggered
+       */
+      actionName: null,
+      /**
+       * Original function defined on the controller
+       */
+      actionFunction: null,
+      /**
+       * Name of the event to trigger
+       */
+      eventName: null,
+      /**
+       * Object where the action is defined
+       */
+      source: null,
+      apply: function(target, args) {
+        this.trigger('action', args);
+        return this.perform(target, args);
+      },
+      /**
+       * Call the function that this object wraps
+       * @param target
+       * @param args
+       * @returns {*}
+       */
+      perform: function(target, args) {
+        return this.get('actionFunction').apply(target, args);
+      },
+      /**
+       * Bind an event to this object. This allows us to trigger an event by same name on all registered views.
+       * @param view
+       */
+      register: function(view) {
+        Ember.assert("View must be an Ember.view", view instanceof Ember.View);
+        var eventName = this.get('eventName');
+        this.on('action', function triggerViewAction(args){
+          view.trigger.apply(view, [eventName].concat(args));
         });
-        return this.func.apply(controllerProxy, args);
+        Ember.Logger.info('Registered %@ onto %@'.fmt(eventName, view.toString()));
       }
-    };
-  });
-define("ember-dom-actions/factories/follow-parent",
-  ["ember","exports"],
-  function(__dependency1__, __exports__) {
-    "use strict";
-    var Ember = __dependency1__["default"] || __dependency1__;
+    });
 
-    /**
-     * Returns a new Ember.View mixin that will cause the recipient of the mixin to bind to it's parent's event called {eventName}.
-     * When the bound parent triggers {eventName}, the recipient will trigger {eventName} and pass along the arguments.
-     * @param eventName
-     * @returns {*}
-     */
-    __exports__["default"] = function followParent(eventName) {
-      var options = {};
-      var methodName = 'bind' + eventName.camelize();
-      options[methodName] = function() {
-        var parentView = this.get('parentView');
-        if (parentView) {
-          parentView.on(eventName, this, function(){
-            var args = [].slice.apply(arguments);
-            args.unshift(eventName);
-            this.trigger.apply(this, args);
-          });
-        }
-      }.on('didInsertElement');
-      return Ember.Mixin.create(options);
-    }
+    DOMAction.reopenClass({
+      convert: function(target, actionName, eventName) {
+        Ember.assert("Target must implement Ember.ActionHandlerMixin - ie. be controller.", Ember.ActionHandler.detect(target));
+        var func =  target._actions[actionName];
+        var action = DOMAction.create({
+          actionFunction: func,
+          actionName: actionName,
+          eventName: eventName,
+          source: target
+        });
+        target._actions[actionName] = action;
+        return action;
+      }
+    });
+
+    __exports__["default"] = DOMAction;
   });
 define("ember-dom-actions",
   ["./action","exports"],
@@ -113,49 +71,6 @@ define("ember-dom-actions",
     "use strict";
     var DOMAction = __dependency1__["default"] || __dependency1__;
     __exports__["default"] = DOMAction;
-  });
-define("ember-dom-actions/mixins/bind-dom-actions",
-  ["ember","../action","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    var Ember = __dependency1__["default"] || __dependency1__;
-    var DOMAction = __dependency2__.DOMAction;
-
-    /**
-     * Ember.View mixin that will cause the view to bind itself to parent's controller's DOM Actions.
-     * When used on Component, the mixin will go to parentView's controller.
-     */
-    __exports__["default"] = Ember.Mixin.create({
-      _bindDOMActions: function() {
-        var view;
-        if (this instanceof Ember.Component) {
-          view = this.get('parentView');
-        } else if (this instanceof Ember.View){
-          view = this;
-        }
-        Ember.assert("DOMActionMixin can only be used with a View or a Component", view != null);
-
-        var controller;
-        var target = this.get('attach-to');
-        if (target) {
-          Ember.assert("Source must implement Ember.ActionHandlerMixin - ie. be controller.", Ember.ActionHandler.detect(target));
-          controller = target;
-        } else {
-          controller = view.get('controller');
-        }
-
-        if (controller && view) {
-          // get controller's actions hash
-          var actions = controller.get('_actions') || {};
-          Ember.keys(actions).forEach(function(actionName){
-            var action = actions[actionName];
-            if (action instanceof DOMAction) {
-              action.setup(view);
-            }
-          });
-        }
-      }.on('didInsertElement')
-    });
   });
 define("ember-dom-actions/mixins/nesting-helpers",
   ["ember","exports"],
@@ -182,7 +97,7 @@ define("ember-dom-actions/mixins/nesting-helpers",
         var component = this.container.lookupFactory('component:%@'.fmt(componentName));
         Ember.assert('Must pass a valid component name - %@ was not found.', component);
 
-        return (this.get('_childViews') || []).find(function findChild(item, index){
+        return (this.get('_childViews') || []).find(function findChild(item){
           // TODO: write recursive mechanism
           return item instanceof component;
         });

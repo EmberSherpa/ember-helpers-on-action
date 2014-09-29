@@ -2,80 +2,66 @@
 "use strict";
 var Ember = window.Ember["default"] || window.Ember;
 
-/**
- * Returns a new DOMAction
- */
-exports["default"] = function(handler, options) {
-  return new DOMAction(handler, options);
-}
-
-function DOMAction(handler, options) {
-  if (!(this instanceof DOMAction)) {
-    return new DOMAction(handler, options);
-  }
-  if (Ember.typeOf(handler) === 'string') {
-    this.eventName = handler;
-  }
-  if (Ember.typeOf(handler) === 'function') {
-    this.func = handler;
-  }
-  options = Ember.merge({
-    afterRender: false,
-    bubble: false
-  }, options);
-
-  this.afterRender = options.afterRender;
-  this.bubble = options.bubble;
-}
-
-exports.DOMAction = DOMAction;DOMAction.prototype.constructor = DOMAction;
-
-/**
- * Name of the event to trigger on the
- * @type {null}
- */
-DOMAction.prototype.eventName = null;
-/**
- * View that this action targets
- * @type {null}
- */
-DOMAction.prototype.view = null;
-/**
- * Function that will be called when action is triggered
- * @type {null}
- */
-DOMAction.prototype.func = null;
-
-DOMAction.prototype.setup = function(view) {
-  this.view = view;
-};
-
-DOMAction.prototype.apply = function(controller, args) {
-  var view = this.view;
-
-  if (view && this.eventName != null && view.trigger != null) {
-    args.unshift(this.eventName);
-    if (this.afterRender) {
-      //Ember.run.scheduleOnce('afterRender', view, view.trigger, args);
-      Ember.run.scheduleOnce('afterRender', view, function() {
-        view.trigger.apply(view, args);
-      });
-    } else {
-      view.trigger.apply(view, args);
-    }
-    if (this.bubble) {
-      return true;
-    }
-  }
-
-  if (this.func != null) {
-    var controllerProxy = Ember.ObjectProxy.create({
-      content: controller,
-      view: view
+var DOMAction = Ember.Object.extend(Ember.Evented, {
+  /**
+   * Name of the action that is being triggered
+   */
+  actionName: null,
+  /**
+   * Original function defined on the controller
+   */
+  actionFunction: null,
+  /**
+   * Name of the event to trigger
+   */
+  eventName: null,
+  /**
+   * Object where the action is defined
+   */
+  source: null,
+  apply: function(target, args) {
+    this.trigger('action', args);
+    return this.perform(target, args);
+  },
+  /**
+   * Call the function that this object wraps
+   * @param target
+   * @param args
+   * @returns {*}
+   */
+  perform: function(target, args) {
+    return this.get('actionFunction').apply(target, args);
+  },
+  /**
+   * Bind an event to this object. This allows us to trigger an event by same name on all registered views.
+   * @param view
+   */
+  register: function(view) {
+    Ember.assert("View must be an Ember.view", view instanceof Ember.View);
+    var eventName = this.get('eventName');
+    this.on('action', function triggerViewAction(args){
+      view.trigger.apply(view, [eventName].concat(args));
     });
-    return this.func.apply(controllerProxy, args);
+    Ember.Logger.info('Registered %@ onto %@'.fmt(eventName, view.toString()));
   }
-};
+});
+
+DOMAction.reopenClass({
+  convert: function(target, actionName, eventName) {
+    Ember.assert("Target must implement Ember.ActionHandlerMixin - ie. be controller.", Ember.ActionHandler.detect(target));
+    var func =  target._actions[actionName];
+    var action = DOMAction.create({
+      actionFunction: func,
+      actionName: actionName,
+      eventName: eventName,
+      source: target
+    });
+    target._actions[actionName] = action;
+    return action;
+  }
+});
+
+exports["default"] = DOMAction;
 },{}],2:[function(_dereq_,module,exports){
 "use strict";
 var DOMAction = _dereq_("./action")["default"] || _dereq_("./action");
