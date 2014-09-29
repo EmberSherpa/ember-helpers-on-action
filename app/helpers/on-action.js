@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import DOMAction from 'ember-dom-actions/action';
-import DispatcherMixin from 'ember-dom-actions/mixins/dispatcher';
 
 export default Ember.Handlebars.makeBoundHelper(onActionHelper);
 var get = Ember.get;
@@ -31,21 +30,11 @@ function onActionHelper(actionName, options){
     };
     actions[actionName] = action;
   }
-  var domAction = action instanceof DOMAction ? action : DOMAction.convert(context, actionName, eventName);
+  action = action instanceof DOMAction ? action : DOMAction.convert(context, actionName, eventName);
 
-  var isViewDispatcher = DispatcherMixin.detect(view);
-  if (isViewDispatcher) {
-    /**
-     * Register action with dispatcher.
-     * When action is triggered, the dispatcher is notified and reacts by notifying
-     * all handlers that are registered with the dispatcher.
-     */
-    view.registerAction(eventName, domAction);
-  } else {
-    /**
-     * Register view with the action.
-     * When action is triggered, the event will be triggered on this view.
-     */
-    domAction.register(view);
-  }
+  /**
+   * Register view with the action.
+   * When action is triggered, the event will be triggered on this view.
+   */
+  action.register(view);
 }

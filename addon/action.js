@@ -18,7 +18,7 @@ var DOMAction = Ember.Object.extend(Ember.Evented, {
    */
   source: null,
   apply: function(target, args) {
-    this.trigger('notify', args);
+    this.trigger('action', args);
     return this.perform(target, args);
   },
   /**
@@ -31,26 +31,16 @@ var DOMAction = Ember.Object.extend(Ember.Evented, {
     return this.get('actionFunction').apply(target, args);
   },
   /**
-   * Trigger the event for this action
-   * @param args
-   */
-  onNotify: function(args) {
-    this.trigger(this.get('eventName'), args);
-  }.on('notify'),
-  /**
    * Bind an event to this object. This allows us to trigger an event by same name on all registered views.
    * @param view
    */
   register: function(view) {
     Ember.assert("View must be an Ember.view", view instanceof Ember.View);
     var eventName = this.get('eventName');
-    this.on(eventName, function triggerViewAction(args){
-      // add eventName to the beginning of the args array
-      args.unshift(eventName);
-      // push domAction to the end of the args array
-      args.push(this);
-      view.trigger.apply(view, args);
+    this.on('action', function triggerViewAction(args){
+      view.trigger.apply(view, [eventName].concat(args));
     });
+    Ember.Logger.info('Registered %@ onto %@'.fmt(eventName, view.toString()));
   }
 });
 

@@ -1,14 +1,14 @@
 import Ember from 'ember';
 
-export default Ember.Component.extend(
-  {
-    handles: ['show-tooltip', 'hide-tooltip'],
+export default Ember.Component.extend({
     tooltip: null,
+    'open-on': 'click',
     'show-tooltip': function(target, content, options) {
       options = Ember.merge({
         target: target.$()[0],
         content: content.$()[0],
-        position: 'top center'
+        position: 'top center',
+        openOn: this.get('open-on')
       }, options);
       var tooltip = this.get('tooltip');
       if (tooltip != null) {
@@ -16,14 +16,14 @@ export default Ember.Component.extend(
       }
       tooltip = new Tooltip(options);
       this.set('tooltip', tooltip);
-      console.log('Showing tooltip: ', target);
-    }.on('show-tooltip'),
+      console.log('Show tooltip', arguments);
+    },
     'hide-tooltip': function() {
       var tooltip = this.get('tooltip');
       if (tooltip) {
         tooltip.destory();
       }
-      console.log('Hiding tooltip: ', target);
-    }.on('hide-tooltip')
+      console.log('Close tooltip', arguments);
+    }
   }
 );
