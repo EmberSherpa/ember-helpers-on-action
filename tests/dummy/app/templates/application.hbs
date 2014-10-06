@@ -2,18 +2,3 @@
   {{on-action "show-tooltip"}}
   {{on-action "hide-tooltip"}}
 {{/tooltip-handler}}
-
-<h2 id="title">ember-dom-actions</h2>
-
-{{#tooltip-trigger action="show-tooltip" text="Tooltip Trigger 1" position="top left"}}
-  <h3>Tooltip Trigger 2 - Content</h3>
-  {{#tooltip-close action="hide-tooltip"}}Close{{/tooltip-close}}
-{{/tooltip-trigger}}
-<br>
-<br>
-{{#tooltip-trigger action="show-tooltip" text="Tooltip Trigger 2" position="right middle"}}
-  <h3>Tooltip Trigger 2 - Content</h3>
-  {{#tooltip-close action="hide-tooltip"}}Close{{/tooltip-close}}
-{{/tooltip-trigger}}
-
-{{outlet}}
