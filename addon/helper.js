@@ -17,7 +17,10 @@ export default function onActionHelper(actionName, options){
   var context = get(options, 'hash.context') || this;
   var view = get(options, 'data.view.parentView');
   var eventName = get(options, 'hash.trigger') || actionName;
-  var actions = get(context, '_actions') || {};
+  if (get(context, '_actions') == null) {
+    context._actions = {};
+  }
+  var actions = get(context, '_actions');
   var action;
 
   if (actions.hasOwnProperty(actionName)) {
