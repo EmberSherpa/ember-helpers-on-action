@@ -11,7 +11,7 @@
     "build": "./node_modules/.bin/ember build --output=built",
     "test": "./node_modules/.bin/ember test --output=built"
   },
-  "repository": "https://github.com/taras/ember-dom-actions.git",
+  "repository": "https://github.com/embersherpa/ember-helpers-on-action.git",
   "engines": {
     "node": ">= 0.10.0"
   },
@@ -35,7 +35,6 @@
     "ember-data": "1.0.0-beta.10",
     "express": "^4.8.5",
     "glob": "^4.0.5",
-    "ember-cli-topcoat": "^0.1.2",
     "broccoli-dist-es6-module": "^0.2.1",
     "broccoli-merge-trees": "^0.1.4"
   },
