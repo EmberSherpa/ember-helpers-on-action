@@ -1,3 +1,3 @@
 module.exports = {
-  name: 'ember-dom-actions'
+  name: 'ember-helpers-on-action'
 };

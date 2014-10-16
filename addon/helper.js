@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import DOMAction from 'ember-dom-actions/action';
+import DOMAction from './action';
 
 var get = Ember.get;
 
