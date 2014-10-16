@@ -17,9 +17,5 @@
     "ember-qunit-notifications": "0.0.4",
     "qunit": "~1.15.0"
   },
-  "devDependencies": {
-    "topcoat": "~0.8.0",
-    "tether": "~0.6.5",
-    "tether-tooltip": "~0.2.6"
-  }
+  "devDependencies": {}
 }

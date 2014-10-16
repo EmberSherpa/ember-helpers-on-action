@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import DOMActionHelper from 'ember-helper-on-action/helper';
+import DOMActionHelper from 'ember-helpers-on-action/helper';
 
 export default Ember.Handlebars.makeBoundHelper(DOMActionHelper);
 

@@ -23,7 +23,7 @@ module.exports = function(grunt){
             main: 'main',
             global: 'eda',
             // the prefix for named-amd modules
-            packageName: 'ember-dom-actions',
+            packageName: 'ember-helpers-on-action',
             // global output only: naive shimming, when the id 'ember' is imported,
             // substitute with `window.Ember` instead
             shim: {
