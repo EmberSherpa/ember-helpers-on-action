@@ -1,4 +1,4 @@
-define("ember-dom-actions/action",
+define("ember-helpers-on-action/action",
   ["ember","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -65,8 +65,8 @@ define("ember-dom-actions/action",
 
     __exports__["default"] = DOMAction;
   });
-define("ember-dom-actions/helper",
-  ["ember","ember-dom-actions/action","exports"],
+define("ember-helpers-on-action/helper",
+  ["ember","./action","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"] || __dependency1__;
@@ -112,42 +112,10 @@ define("ember-dom-actions/helper",
       action.register(view);
     }
   });
-define("ember-dom-actions",
+define("ember-helpers-on-action",
   ["./action","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
     var DOMAction = __dependency1__["default"] || __dependency1__;
     __exports__["default"] = DOMAction;
-  });
-define("ember-dom-actions/mixins/nesting-helpers",
-  ["ember","exports"],
-  function(__dependency1__, __exports__) {
-    "use strict";
-    var Ember = __dependency1__["default"] || __dependency1__;
-
-    __exports__["default"] = Ember.Mixin.create({
-      /**
-       * Return closes parent component of a specific type.
-       * @param {string} componentName
-       */
-      parentComponent: function parentComponent(componentName) {
-        var component = this.container.lookupFactory('component:%@'.fmt(componentName));
-        Ember.assert('Must pass a valid component name - %@ was not found.', component);
-
-        // TODO: write traversing mechanism
-      },
-      /**
-       * Return first child component by component name.
-       * @param componentName
-       */
-      childComponent: function childComponent(componentName) {
-        var component = this.container.lookupFactory('component:%@'.fmt(componentName));
-        Ember.assert('Must pass a valid component name - %@ was not found.', component);
-
-        return (this.get('_childViews') || []).find(function findChild(item){
-          // TODO: write recursive mechanism
-          return item instanceof component;
-        });
-      }
-    });
   });

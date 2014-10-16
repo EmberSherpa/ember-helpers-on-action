@@ -1,6 +1,6 @@
 "use strict";
 var Ember = require("ember")["default"] || require("ember");
-var DOMAction = require("ember-dom-actions/action")["default"] || require("ember-dom-actions/action");
+var DOMAction = require("./action")["default"] || require("./action");
 
 var get = Ember.get;
 
