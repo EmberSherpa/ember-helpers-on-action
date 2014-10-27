@@ -41,8 +41,13 @@ define(
       register: function(view) {
         Ember.assert("View must be an Ember.view", view instanceof Ember.View);
         var eventName = this.get('eventName');
-        this.on('action', function triggerViewAction(args){
+        var action = this;
+        function triggerViewAction(args){
           view.trigger.apply(view, [eventName].concat(args));
+        }
+        this.on('action', triggerViewAction);
+        view.on('willDestroyElement', function(){
+          action.off('action', triggerViewAction);
         });
         Ember.Logger.info('Registered %@ onto %@'.fmt(eventName, view.toString()));
       }
